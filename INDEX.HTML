@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure File and Folder Protector</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+</head>
+<body>
+  <div class="page-shell">
+    <div class="ambient ambient-left"></div>
+    <div class="ambient ambient-right"></div>
+
+    <main class="container fade-in">
+      <section class="hero">
+        <div class="hero-copy">
+          <span class="eyebrow">Local encryption workspace</span>
+          <h1>Protect files and folders with browser-side encryption.</h1>
+          <p class="hero-text">
+            Your content is processed in the browser using AES-GCM with PBKDF2-derived keys.
+            Nothing is uploaded from this page.
+          </p>
+        </div>
+
+        <div class="hero-panel">
+          <div class="trust-item">
+            <span class="trust-label">Mode</span>
+            <strong>Client-side only</strong>
+          </div>
+          <div class="trust-item">
+            <span class="trust-label">Cipher</span>
+            <strong>AES-256-GCM</strong>
+          </div>
+          <div class="trust-item">
+            <span class="trust-label">Limit</span>
+            <strong>1 GB per job</strong>
+          </div>
+        </div>
+      </section>
+
+      <nav class="tabs" aria-label="Protection modes">
+        <button class="tab-btn active" type="button" data-tab="file-protect">File Protector</button>
+        <button class="tab-btn" type="button" data-tab="folder-protect">Folder Protector</button>
+      </nav>
+
+      <section id="file-protect" class="tab-content active slide-in">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Single item workflow</span>
+            <h2>File Protector</h2>
+          </div>
+          <p>Encrypt one file at a time, then preview and download decrypted output securely.</p>
+        </div>
+
+        <div class="card-grid">
+          <article class="section action-card">
+            <div class="card-head">
+              <h3>Encrypt File</h3>
+              <span class="chip">Output: <code>.enc</code></span>
+            </div>
+
+            <label for="file-encrypt-input">Choose file</label>
+            <input type="file" id="file-encrypt-input">
+
+            <label for="file-encrypt-key">Password</label>
+            <input type="password" id="file-encrypt-key" placeholder="Use a strong passphrase" autocomplete="new-password">
+
+            <p class="field-note">Tip: use 12+ characters with a mix of words, numbers, and symbols.</p>
+
+            <div class="button-row">
+              <button id="file-encrypt-btn" type="button">Encrypt File</button>
+            </div>
+
+            <div class="output-box status-box status-neutral" id="file-encrypt-status">Ready to encrypt a file.</div>
+          </article>
+
+          <article class="section action-card">
+            <div class="card-head">
+              <h3>Decrypt File</h3>
+              <span class="chip chip-alt">Preview supported</span>
+            </div>
+
+            <label for="file-decrypt-input">Encrypted file</label>
+            <input type="file" id="file-decrypt-input">
+
+            <label for="file-decrypt-key">Password</label>
+            <input type="password" id="file-decrypt-key" placeholder="Enter the decryption password" autocomplete="current-password">
+
+            <div class="button-row">
+              <button id="file-decrypt-btn" type="button">Decrypt File</button>
+            </div>
+
+            <div class="output-box status-box status-neutral" id="file-decrypt-status">Ready to decrypt an encrypted file.</div>
+
+            <div id="file-preview-container" class="preview-panel" hidden>
+              <div class="preview-head">
+                <h4>Preview</h4>
+                <p>Open fullscreen or download the decrypted file when the preview looks correct.</p>
+              </div>
+              <div class="button-row">
+                <button id="file-preview-full-btn" type="button" class="secondary-btn">Full size preview</button>
+                <button id="file-download-btn" type="button" class="secondary-btn">Download decrypted file</button>
+                <button id="file-clear-btn" type="button" class="ghost-btn">Clear preview</button>
+              </div>
+              <iframe id="file-preview-frame" title="Decrypted file preview"></iframe>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="folder-protect" class="tab-content slide-in">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Batch workflow</span>
+            <h2>Folder Protector</h2>
+          </div>
+          <p>Wrap folders or ZIP archives into encrypted ZIP packages and restore them when needed.</p>
+        </div>
+
+        <div class="card-grid">
+          <article class="section action-card">
+            <div class="card-head">
+              <h3>Encrypt Folder or ZIP</h3>
+              <span class="chip">ZIP bundle</span>
+            </div>
+
+            <label for="enc-source-type">Source Type</label>
+            <select id="enc-source-type">
+              <option value="folder">Folder</option>
+              <option value="zip">ZIP</option>
+            </select>
+
+            <div id="enc-folder-wrap">
+              <label for="enc-folder-input">Folder input</label>
+              <input type="file" id="enc-folder-input" webkitdirectory directory multiple>
+            </div>
+
+            <div id="enc-zip-wrap" hidden>
+              <label for="enc-zip-input">ZIP input</label>
+              <input type="file" id="enc-zip-input" accept=".zip,application/zip">
+            </div>
+
+            <label for="enc-folder-key">Password</label>
+            <input type="password" id="enc-folder-key" placeholder="Enter encryption password" autocomplete="new-password">
+
+            <div class="button-row">
+              <button id="enc-folder-btn" type="button">Encrypt Archive</button>
+              <button id="download-enc-zip-btn" type="button" class="secondary-btn" hidden>Download ZIP</button>
+            </div>
+
+            <div class="output-box status-box status-neutral" id="enc-folder-output">Ready to build an encrypted ZIP.</div>
+          </article>
+
+          <article class="section action-card">
+            <div class="card-head">
+              <h3>Decrypt Folder or ZIP</h3>
+              <span class="chip chip-alt">Restores structure</span>
+            </div>
+
+            <label for="dec-source-type">Source Type</label>
+            <select id="dec-source-type">
+              <option value="enczip">Encrypted ZIP</option>
+              <option value="zip">Normal ZIP</option>
+            </select>
+
+            <label for="dec-zip-input">ZIP file</label>
+            <input type="file" id="dec-zip-input" accept=".zip,application/zip">
+
+            <label for="dec-folder-key">Password</label>
+            <input type="password" id="dec-folder-key" placeholder="Enter decryption password" autocomplete="current-password">
+
+            <div class="button-row">
+              <button id="dec-folder-btn" type="button">Decrypt Archive</button>
+              <button id="download-dec-zip-btn" type="button" class="secondary-btn" hidden>Download ZIP</button>
+            </div>
+
+            <div class="output-box status-box status-neutral" id="dec-folder-output">Ready to restore a ZIP package.</div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
